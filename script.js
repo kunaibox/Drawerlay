@@ -6,22 +6,35 @@ const opacityVal = document.getElementById('opacityVal');
 const scaleRange = document.getElementById('scaleRange');
 const scaleVal = document.getElementById('scaleVal');
 const startBtn = document.getElementById('startCameraBtn');
+const flipBtn = document.getElementById('flipCameraBtn');
 
 let overlay = null;
 let locked = false;
+let currentStream = null;
+let useFrontCamera = true;
 
-
-startBtn.addEventListener('click', async () => {
+async function startCamera() {
+  if(currentStream) currentStream.getTracks().forEach(track => track.stop());
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video:true });
+    const constraints = { video: { facingMode: useFrontCamera ? 'user' : 'environment' } };
+    const stream = await navigator.mediaDevices.getUserMedia(constraints);
     video.srcObject = stream;
-    startBtn.style.display = 'none';
+    currentStream = stream;
   } catch(err) {
-    alert('Camera denied');
+    alert('Camera denied or unavailable');
     console.error(err);
   }
+}
+
+startBtn.addEventListener('click', async () => {
+  await startCamera();
+  startBtn.style.display = 'none';
 });
 
+flipBtn.addEventListener('click', async () => {
+  useFrontCamera = !useFrontCamera;
+  await startCamera();
+});
 
 fileInput.addEventListener('change', e => {
   const file = e.target.files[0];
@@ -44,14 +57,12 @@ fileInput.addEventListener('change', e => {
   e.target.value='';
 });
 
-
 opacityRange.addEventListener('input', () => {
   if(!overlay) return;
   const value = opacityRange.value;
   overlay.querySelector('img').style.opacity = value/100;
   opacityVal.textContent = `${value}%`;
 });
-
 
 scaleRange.addEventListener('input', () => {
   if(!overlay) return;
@@ -66,10 +77,9 @@ scaleRange.addEventListener('input', () => {
 function setupInteract(el) {
   el.angle = 0;
   el.scale = 1;
-
   let lastTap = 0;
   el.addEventListener('pointerdown', e => {
-    if(!e.isPrimary) return; 
+    if(!e.isPrimary) return;
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTap;
     if(tapLength < 300 && tapLength > 0){
