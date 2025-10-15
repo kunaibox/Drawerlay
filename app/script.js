@@ -10,7 +10,7 @@ const startBtn = document.getElementById('startCameraBtn');
 let overlay = null;
 let locked = false;
 
-// Start camera on button click (required on mobile)
+
 startBtn.addEventListener('click', async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video:true });
@@ -22,7 +22,7 @@ startBtn.addEventListener('click', async () => {
   }
 });
 
-// Upload overlay
+
 fileInput.addEventListener('change', e => {
   const file = e.target.files[0];
   if(!file) return;
@@ -44,7 +44,7 @@ fileInput.addEventListener('change', e => {
   e.target.value='';
 });
 
-// Opacity slider
+
 opacityRange.addEventListener('input', () => {
   if(!overlay) return;
   const value = opacityRange.value;
@@ -52,7 +52,7 @@ opacityRange.addEventListener('input', () => {
   opacityVal.textContent = `${value}%`;
 });
 
-// Scale slider (desktop)
+
 scaleRange.addEventListener('input', () => {
   if(!overlay) return;
   const s = scaleRange.value / 100;
@@ -63,15 +63,13 @@ scaleRange.addEventListener('input', () => {
   scaleVal.textContent = `${scaleRange.value}%`;
 });
 
-// Interact.js setup
 function setupInteract(el) {
   el.angle = 0;
   el.scale = 1;
 
-  // Mobile double-tap to lock/unlock (ignore second finger)
   let lastTap = 0;
   el.addEventListener('pointerdown', e => {
-    if(!e.isPrimary) return; // ignore pinch fingers
+    if(!e.isPrimary) return; 
     const currentTime = new Date().getTime();
     const tapLength = currentTime - lastTap;
     if(tapLength < 300 && tapLength > 0){
