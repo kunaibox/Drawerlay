@@ -14,12 +14,16 @@ let currentStream = null;
 let useFrontCamera = true;
 
 async function startCamera() {
-  if(currentStream) currentStream.getTracks().forEach(track => track.stop());
+  if (currentStream) {
+    currentStream.getTracks().forEach(track => track.stop());
+    video.srcObject = null;
+  }
   try {
     const constraints = { video: { facingMode: useFrontCamera ? 'user' : 'environment' } };
     const stream = await navigator.mediaDevices.getUserMedia(constraints);
     video.srcObject = stream;
     currentStream = stream;
+    await video.play();
   } catch(err) {
     alert('Camera denied or unavailable');
     console.error(err);
